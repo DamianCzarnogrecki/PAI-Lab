@@ -1,0 +1,58 @@
+﻿@page "/"
+@inject InterfejsSerwisuPanstwa Serwis
+@inject NavigationManager NavigationManager
+
+<PageTitle>PAŃSTWA</PageTitle>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>NAZWA POWSZECHNA</th>
+            <th>NAZWA OFICJALNA</th>
+            <th>KOD ISO3166</th>
+            <th>TYP RZĄDU</th>
+            <th>LICZBA OBYWATELI</th>
+            <th>HDI</th>
+            <th>FLAGA</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var panstwo in Serwis.Panstwa)
+        {
+            <tr>
+                <td>@panstwo.ID</td>
+                <td>@panstwo.NazwaPowszechna</td>
+                <td>@panstwo.NazwaOficjalna</td>
+                <td>@panstwo.KodISO3166</td>
+                <td>@panstwo.TypRzadu.Nazwa</td>
+                <td>@panstwo.LiczbaObywateli</td>
+                <td>@panstwo.HDI</td>
+                <td><img width="64" height="42" src=@panstwo.URLflagi /></td>
+                <td>
+                    <button class="btn btn-primary" @onclick="(() => WyswietlPanstwo(panstwo.ID))">EDYTUJ</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-primary" @onclick="UtworzPanstwo">DODAJ PAŃSTWO</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await Serwis.WyswietlPanstwa();
+    }
+
+    void UtworzPanstwo()
+    {
+        NavigationManager.NavigateTo("/panstwo");
+    }
+
+    void WyswietlPanstwo(int id)
+    {
+        NavigationManager.NavigateTo($"panstwo/{id}");
+    }
+}

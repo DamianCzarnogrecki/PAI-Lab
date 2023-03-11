@@ -1,0 +1,98 @@
+﻿@page "/panstwo"
+@page "/panstwo/{id:int}"
+@inject InterfejsSerwisuPanstwa Serwis
+
+<PageTitle>DODAJ/ZMIEŃ PAŃSTWO</PageTitle>
+
+<EditForm Model="panstwo" OnSubmit="UtworzLubZmodyfikujPanstwo">
+    <div>
+        <label for="numerIdentyfikacyjny">ID</label>
+        <InputNumber id="numerIdentyfikacyjny" @bind-Value="panstwo.ID" class="form-control"></InputNumber>
+    </div>
+    <div>
+        <label for="nazwaPowszechna">NAZWA POWSZECHNA</label>
+        <InputText id="nazwaPowszechna" @bind-Value="panstwo.NazwaPowszechna" class="form-control"></InputText>
+    </div>
+    <div>
+        <label for="nazwaOficjalna">NAZWA OFICJALNA</label>
+        <InputText id="nazwaOficjalna" @bind-Value="panstwo.NazwaOficjalna" class="form-control"></InputText>
+    </div>
+    <div>
+        <label for="kodISO3166">KOD ISO3166</label>
+        <InputText id="kodISO3166" @bind-Value="panstwo.KodISO3166" class="form-control"></InputText>
+    </div>
+    <div>
+        <label>TYP RZĄDU</label><br />
+        <InputSelect @bind-Value="panstwo.TypRzaduID" class="form-select">
+            @foreach (var typRzadu in Serwis.TypyRzadu)
+            {
+                <option value="@typRzadu.ID">@typRzadu.Nazwa</option>
+            }
+        </InputSelect>
+    </div>
+    <div>
+        <label for="liczbaObywateli">LICZBA OBYWATELI</label>
+        <InputNumber id="liczbaObywateli" @bind-Value="panstwo.LiczbaObywateli" class="form-control"></InputNumber>
+    </div>
+    <div>
+        <label for="hdi">HDI</label>
+        <InputNumber id="hdi" @bind-Value="panstwo.HDI" class="form-control"></InputNumber>
+    </div>
+    <div>
+        <label for="urlFlagi">Flaga</label>
+        <InputText id="urlFlagi" @bind-Value="panstwo.URLflagi" class="form-control"></InputText>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@tekstPrzycisku</button>
+    <button type="button" class="btn btn-primary" @onclick="UsunPanstwo">USUŃ PAŃSTWO</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? ID { get; set; }
+    string tekstPrzycisku;
+    LAB1.Shared.Panstwo panstwo = new LAB1.Shared.Panstwo { TypRzadu = new TypRzadu() };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ID == null)
+        {
+            tekstPrzycisku = "DODAJ PAŃSTWO";
+        }
+        else
+        {
+            tekstPrzycisku = "ZMODYFIKUJ PAŃSTWO";
+        }
+        await Serwis.OdczytajTypRzadu();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ID == null)
+        {
+            panstwo.TypRzadu = Serwis.TypyRzadu[0];
+            panstwo.TypRzaduID = panstwo.TypRzadu.ID;
+        }
+        else
+        {
+            panstwo = await Serwis.WyswietlPanstwo((int)ID);
+        }
+    }
+
+    async Task UtworzLubZmodyfikujPanstwo()
+    {
+        if (ID == null)
+        {
+            await Serwis.UtworzPanstwo(panstwo);
+        }
+        else
+        {
+            await Serwis.ZmodyfikujPanstwo(panstwo);
+        }
+    }
+
+    async Task UsunPanstwo()
+    {
+        await Serwis.UsunPanstwo(panstwo.ID);
+    }
+}
